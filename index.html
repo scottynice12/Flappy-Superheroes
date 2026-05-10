@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Flappy Superheroes – Tattoo Eagle</title>
+    <title>Flappy Superheroes – Tattoo Owl</title>
     <style>
         * {
             user-select: none;
@@ -92,6 +92,15 @@
             margin-top: 15px;
             font-size: 0.7rem;
         }
+        .mute-btn {
+            background: #333;
+            border: none;
+            border-radius: 30px;
+            padding: 4px 12px;
+            margin-left: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
         @media (max-width: 560px) {
             .hero-btn { font-size: 0.8rem; padding: 4px 12px; }
         }
@@ -100,33 +109,46 @@
 <body>
 <div style="display: flex; flex-direction: column; align-items: center;">
     <div class="hero-panel">
-        <div class="score-board" id="scoreDisplay">🦅 0</div>
-        <div style="font-weight: bold; margin: 5px;">⚡ SUPERHERO TATTOO EAGLE ⚡</div>
+        <div class="score-board" id="scoreDisplay">🦉 0</div>
+        <div style="font-weight: bold; margin: 5px;">⚡ SUPERHERO TATTOO OWL ⚡
+            <button id="muteBtn" class="mute-btn">🔊 Mute</button>
+        </div>
         <div class="hero-grid" id="heroGrid"></div>
     </div>
     <div class="game-wrapper">
         <canvas id="gameCanvas" width="500" height="600" style="width:100%; height:auto; max-width:500px; aspect-ratio:500/600;"></canvas>
     </div>
     <div class="info">▼ CLICK / SPACEBAR = FLAP ▲  |  crash → instantly restart</div>
-    <footer>🦅 eagle tattoo changes with hero | dynamic superhero themes</footer>
+    <footer>🦉 owl + hero tattoo | dynamic themes | original chiptune music inspired by each hero</footer>
 </div>
 
 <script>
     (function(){
-        // ----- SUPERHERO ROSTER with theme colors & tattoo symbol -----
+        // ------------------------------------------------------------------
+        // SUPERHERO ROSTER (with visual theme and music DNA)
+        // Each hero gets a distinct "look" (emoji, tattoo, colors) and music style
+        // ------------------------------------------------------------------
         const heroes = [
-            { name: "Spiderman",   emoji: "🕷️",  tattoo: "🕸️", themeColor: "#E23636", bgTop: "#8B0000", bgBottom: "#4A0000", pipeColor: "#2F2F8F" },
-            { name: "Batman",      emoji: "🦇",  tattoo: "🦇", themeColor: "#2C2F33", bgTop: "#1E1A2F", bgBottom: "#0B0B1A", pipeColor: "#3A3A5A" },
-            { name: "Superman",    emoji: "🦸",  tattoo: "⚡", themeColor: "#F5D742", bgTop: "#1E4F8A", bgBottom: "#092C44", pipeColor: "#E5B13B" },
-            { name: "Green Lantern",emoji: "💚",  tattoo: "🔰", themeColor: "#2FCC71", bgTop: "#165B33", bgBottom: "#0A2E1A", pipeColor: "#6FCF97" },
-            { name: "Wonder Woman",emoji: "👸",  tattoo: "⭐", themeColor: "#F1C40F", bgTop: "#B86F2C", bgBottom: "#522E0E", pipeColor: "#F5B041" },
-            { name: "Scarlet Witch",emoji:"🔮",  tattoo: "🌀", themeColor: "#C0392B", bgTop: "#6A1E3A", bgBottom: "#2E0B18", pipeColor: "#C44536" },
-            { name: "Captain Marvel",emoji:"✨",  tattoo: "💫", themeColor: "#F39C12", bgTop: "#1B5A7A", bgBottom: "#0A2E42", pipeColor: "#F7DC6F" },
-            { name: "Catwoman",    emoji: "🐱",  tattoo: "🐾", themeColor: "#5D6D7E", bgTop: "#2C2E3A", bgBottom: "#11121C", pipeColor: "#AF7AC5" }
+            { name: "Spiderman",   emoji: "🕷️",  tattoo: "🕸️", themeColor: "#E23636", bgTop: "#8B0000", bgBottom: "#4A0000", pipeColor: "#2F2F8F",
+              music: { bpm: 138, notes: [0,2,4,5,7,9,11,12], scale: "minor", pattern: "spidy" } },
+            { name: "Batman",      emoji: "🦇",  tattoo: "🦇", themeColor: "#2C2F33", bgTop: "#1E1A2F", bgBottom: "#0B0B1A", pipeColor: "#3A3A5A",
+              music: { bpm: 112, notes: [0,3,6,7,0,3,6,7], scale: "minor", pattern: "dark" } },
+            { name: "Superman",    emoji: "🦸",  tattoo: "⚡", themeColor: "#F5D742", bgTop: "#1E4F8A", bgBottom: "#092C44", pipeColor: "#E5B13B",
+              music: { bpm: 152, notes: [0,4,7,12,0,4,7,12], scale: "major", pattern: "heroic" } },
+            { name: "Green Lantern",emoji: "💚",  tattoo: "🔰", themeColor: "#2FCC71", bgTop: "#165B33", bgBottom: "#0A2E1A", pipeColor: "#6FCF97",
+              music: { bpm: 126, notes: [0,3,7,10,0,3,7,10], scale: "minor", pattern: "cosmic" } },
+            { name: "Wonder Woman",emoji: "👸",  tattoo: "⭐", themeColor: "#F1C40F", bgTop: "#B86F2C", bgBottom: "#522E0E", pipeColor: "#F5B041",
+              music: { bpm: 134, notes: [0,5,7,12,0,5,7,12], scale: "major", pattern: "amazon" } },
+            { name: "Scarlet Witch",emoji:"🔮",  tattoo: "🌀", themeColor: "#C0392B", bgTop: "#6A1E3A", bgBottom: "#2E0B18", pipeColor: "#C44536",
+              music: { bpm: 100, notes: [0,2,6,8,0,2,6,8], scale: "minor", pattern: "chaos" } },
+            { name: "Captain Marvel",emoji:"✨",  tattoo: "💫", themeColor: "#F39C12", bgTop: "#1B5A7A", bgBottom: "#0A2E42", pipeColor: "#F7DC6F",
+              music: { bpm: 146, notes: [0,4,7,11,0,4,7,11], scale: "major", pattern: "mighty" } },
+            { name: "Catwoman",    emoji: "🐱",  tattoo: "🐾", themeColor: "#5D6D7E", bgTop: "#2C2E3A", bgBottom: "#11121C", pipeColor: "#AF7AC5",
+              music: { bpm: 104, notes: [0,3,5,8,0,3,5,8], scale: "minor", pattern: "stealth" } }
         ];
 
         let selectedHero = heroes[0];
-        let gameRunning = true;     // game starts immediately after select? Actually we start in idle but first flap starts.
+        let gameRunning = true;
         let gameOverFlag = false;
         let score = 0;
         let frameCounter = 0;
@@ -137,101 +159,158 @@
         const ctx = canvas.getContext('2d');
         const scoreSpan = document.getElementById('scoreDisplay');
 
-        // bird (eagle) physics
+        // owl physics
         let bird = {
             x: 100,
             y: canvas.height/2,
             vy: 0,
-            radius: 20    // eagle hitbox slightly bigger
+            radius: 20
         };
         let pipes = [];
-        
-        // constants
         const GRAVITY = 0.28;
         const JUMP_FORCE = -5.6;
         const PIPE_W = 60;
         const PIPE_GAP = 140;
-        const PIPE_SPACING = 210;
         let frame = 0;
-        
-        // helper: draw eagle with tattoo (superhero symbol)
-        function drawEagle(x, y, radius) {
-            // body base (brown/golden eagle)
+
+        // ---------- MUSIC (Web Audio) ----------
+        let audioCtx = null;
+        let isMuted = false;
+        let currentOsc = null;
+        let currentGain = null;
+        let musicInterval = null;
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playHeroMusic(hero) {
+            if (!audioCtx) initAudio();
+            if (isMuted || !audioCtx) return;
+            // stop previous music
+            if (musicInterval) clearInterval(musicInterval);
+            if (currentOsc) {
+                try { currentOsc.stop(); } catch(e) {}
+            }
+            const bpm = hero.music.bpm;
+            const intervalMs = (60 / bpm) * 1000;
+            let noteIndex = 0;
+            const scale = hero.music.scale === 'major' ? [0,2,4,5,7,9,11,12] : [0,2,3,5,7,8,10,12];
+            const baseFreq = 220; // A3
+            musicInterval = setInterval(() => {
+                if (isMuted || !gameRunning || !audioCtx) return;
+                const noteOffset = hero.music.notes[noteIndex % hero.music.notes.length];
+                const semitone = scale[noteOffset % scale.length];
+                const freq = baseFreq * Math.pow(2, semitone/12);
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                gain.gain.value = 0.12;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+                osc.stop(now + 0.18);
+                noteIndex++;
+            }, intervalMs);
+        }
+
+        function stopMusic() {
+            if (musicInterval) clearInterval(musicInterval);
+            musicInterval = null;
+        }
+
+        // ---------- DRAW OWL with TATTOO ----------
+        function drawOwl(x, y, radius) {
             ctx.save();
             ctx.shadowBlur = 0;
-            // main body
+            // body
             ctx.beginPath();
             ctx.ellipse(x, y, radius*0.9, radius*1.1, 0, 0, Math.PI*2);
-            ctx.fillStyle = "#B87C4F";
+            ctx.fillStyle = "#BC9A6C";
             ctx.fill();
             ctx.strokeStyle = "#5D3A1A";
-            ctx.lineWidth = 1.8;
+            ctx.lineWidth = 1.5;
             ctx.stroke();
-            // wings
+            // belly lighter
             ctx.beginPath();
-            ctx.moveTo(x - radius*0.8, y - radius*0.3);
-            ctx.quadraticCurveTo(x - radius*1.3, y - radius*0.8, x - radius*1.1, y);
-            ctx.quadraticCurveTo(x - radius*0.9, y + radius*0.2, x - radius*0.5, y);
-            ctx.fillStyle = "#AB6F3F";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(x + radius*0.8, y - radius*0.3);
-            ctx.quadraticCurveTo(x + radius*1.3, y - radius*0.8, x + radius*1.1, y);
-            ctx.quadraticCurveTo(x + radius*0.9, y + radius*0.2, x + radius*0.5, y);
+            ctx.ellipse(x, y+radius*0.1, radius*0.7, radius*0.8, 0, 0, Math.PI*2);
+            ctx.fillStyle = "#E7CAA5";
             ctx.fill();
             // head
             ctx.beginPath();
-            ctx.arc(x, y - radius*0.3, radius*0.65, 0, Math.PI*2);
-            ctx.fillStyle = "#C88A54";
+            ctx.arc(x, y-radius*0.25, radius*0.7, 0, Math.PI*2);
+            ctx.fillStyle = "#C89D6E";
             ctx.fill();
-            ctx.fillStyle = "#FFE0A3";
+            // ear tufts
             ctx.beginPath();
-            ctx.ellipse(x-5, y-radius*0.45, 4, 6, 0, 0, Math.PI*2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(x+5, y-radius*0.45, 4, 6, 0, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = "#000";
-            ctx.beginPath();
-            ctx.arc(x-5, y-radius*0.48, 2, 0, Math.PI*2);
+            ctx.moveTo(x-radius*0.5, y-radius*0.7);
+            ctx.lineTo(x-radius*0.85, y-radius*1.0);
+            ctx.lineTo(x-radius*0.2, y-radius*0.65);
+            ctx.fillStyle = "#8B5A2B";
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(x+5, y-radius*0.48, 2, 0, Math.PI*2);
+            ctx.moveTo(x+radius*0.5, y-radius*0.7);
+            ctx.lineTo(x+radius*0.85, y-radius*1.0);
+            ctx.lineTo(x+radius*0.2, y-radius*0.65);
+            ctx.fill();
+            // eyes (big owl eyes)
+            ctx.fillStyle = "#FFF9E0";
+            ctx.beginPath();
+            ctx.ellipse(x-radius*0.3, y-radius*0.35, radius*0.25, radius*0.35, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x+radius*0.3, y-radius*0.35, radius*0.25, radius*0.35, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#1F2A0E";
+            ctx.beginPath();
+            ctx.arc(x-radius*0.3, y-radius*0.38, radius*0.12, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x+radius*0.3, y-radius*0.38, radius*0.12, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x-radius*0.36, y-radius*0.42, radius*0.05, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x+radius*0.24, y-radius*0.42, radius*0.05, 0, Math.PI*2);
             ctx.fill();
             // beak
             ctx.beginPath();
-            ctx.moveTo(x, y-radius*0.25);
-            ctx.lineTo(x+6, y-radius*0.15);
-            ctx.lineTo(x, y-radius*0.08);
-            ctx.fillStyle = "#E69500";
+            ctx.moveTo(x, y-radius*0.2);
+            ctx.lineTo(x+6, y-radius*0.1);
+            ctx.lineTo(x-6, y-radius*0.1);
+            ctx.fillStyle = "#E67E22";
             ctx.fill();
-            
-            // ----- TATTOO (superhero symbol) on eagle's chest -----
-            ctx.font = `${Math.floor(radius*1.2)}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+            // TATTOO (superhero symbol)
+            ctx.font = `${Math.floor(radius*1.1)}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillStyle = "#FFD966";
-            ctx.shadowBlur = 4;
+            ctx.shadowBlur = 3;
             ctx.shadowColor = "black";
-            ctx.fillText(selectedHero.tattoo, x, y + radius*0.2);
-            ctx.shadowBlur = 0;
+            ctx.fillText(selectedHero.tattoo, x, y + radius*0.15);
             ctx.restore();
         }
-        
-        // background with hero theme
+
+        // ---------- THEMED BACKGROUND ----------
         function drawThemeBackground() {
             const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             grad.addColorStop(0, selectedHero.bgTop);
             grad.addColorStop(1, selectedHero.bgBottom);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // add hero emblem floating
-            ctx.font = `34px "Segoe UI Emoji"`;
+            // floating hero emblem
+            ctx.font = `42px "Segoe UI Emoji"`;
             ctx.fillStyle = "#ffffff30";
-            ctx.fillText(selectedHero.emoji, canvas.width-50, 60);
-            ctx.fillText(selectedHero.emoji, 20, canvas.height-40);
+            ctx.fillText(selectedHero.emoji, canvas.width-60, 70);
+            ctx.fillText(selectedHero.emoji, 25, canvas.height-50);
         }
-        
+
         function drawGround() {
             ctx.fillStyle = "#5C3E1F";
             ctx.fillRect(0, canvas.height-70, canvas.width, 70);
@@ -242,82 +321,65 @@
             ctx.fillStyle = "#95754A";
             ctx.fillRect(0, canvas.height-75, canvas.width, 8);
         }
-        
+
         function drawPipes() {
             for(let p of pipes) {
-                // main pipe body
                 ctx.fillStyle = selectedHero.pipeColor;
                 ctx.fillRect(p.x, 0, PIPE_W, p.topHeight);
                 ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_W, canvas.height - p.topHeight - PIPE_GAP - 70);
-                // pipe rims
+                // rims
                 ctx.fillStyle = "#4F9A4F";
                 ctx.fillRect(p.x-8, p.topHeight-18, PIPE_W+16, 22);
                 ctx.fillRect(p.x-8, p.topHeight + PIPE_GAP - 8, PIPE_W+16, 22);
-                // edge glow
                 ctx.strokeStyle = "#D4AF37";
                 ctx.lineWidth = 1.5;
                 ctx.strokeRect(p.x-6, p.topHeight-15, PIPE_W+12, 16);
                 ctx.strokeRect(p.x-6, p.topHeight + PIPE_GAP -6, PIPE_W+12, 16);
             }
         }
-        
+
         function updateGame() {
             if (!gameRunning) return;
-            
-            // eagle physics
             bird.vy += GRAVITY;
             bird.y += bird.vy;
-            
-            // collision with ground or ceiling
             if (bird.y + bird.radius >= canvas.height - 70 || bird.y - bird.radius <= 5) {
                 gameRunning = false;
                 gameOverFlag = true;
+                stopMusic();
                 return;
             }
-            
-            // pipe collision & scoring
             for(let i=0; i<pipes.length; i++) {
                 let p = pipes[i];
                 if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + PIPE_W) {
                     if (bird.y - bird.radius < p.topHeight || bird.y + bird.radius > p.topHeight + PIPE_GAP) {
                         gameRunning = false;
                         gameOverFlag = true;
+                        stopMusic();
                         return;
                     }
                 }
                 if (!p.counted && p.x + PIPE_W < bird.x - bird.radius) {
                     p.counted = true;
                     score++;
-                    scoreSpan.innerText = `🦅 ${score}`;
+                    scoreSpan.innerText = `🦉 ${score}`;
                 }
             }
-            // remove offscreen pipes
             pipes = pipes.filter(p => p.x + PIPE_W > 0);
-            
-            // spawn new pipes
             if (frame % 110 === 0 && gameRunning) {
                 let minTop = 60;
                 let maxTop = canvas.height - PIPE_GAP - 110;
                 let topHeight = Math.floor(Math.random() * (maxTop - minTop + 1) + minTop);
-                pipes.push({
-                    x: canvas.width,
-                    topHeight: topHeight,
-                    counted: false
-                });
+                pipes.push({ x: canvas.width, topHeight: topHeight, counted: false });
             }
-            // move pipes
-            for(let p of pipes) {
-                p.x -= 3.0;
-            }
+            for(let p of pipes) p.x -= 3.0;
             frame++;
         }
-        
+
         function drawScene() {
             drawThemeBackground();
             drawPipes();
             drawGround();
-            drawEagle(bird.x, bird.y, bird.radius);
-            // score display on canvas
+            drawOwl(bird.x, bird.y, bird.radius);
             ctx.font = 'bold 26px "Courier New"';
             ctx.fillStyle = "#F9E79F";
             ctx.shadowBlur = 2;
@@ -329,28 +391,23 @@
                 ctx.font = '16px monospace';
                 ctx.fillStyle = "#CCBB88";
                 ctx.fillText("tap / space to restart", canvas.width/2-95, canvas.height/2+20);
-            } else if (!gameRunning && !gameOverFlag) {
-                // initial waiting state (should not happen but safe)
-                ctx.font = '18px monospace';
-                ctx.fillStyle = "#FFEEAA";
-                ctx.fillText("tap to fly", canvas.width/2-45, canvas.height/2);
             }
             ctx.shadowBlur = 0;
         }
-        
-        // restart function (reset everything)
+
         function restartGame() {
             gameRunning = true;
             gameOverFlag = false;
             score = 0;
-            scoreSpan.innerText = `🦅 0`;
+            scoreSpan.innerText = `🦉 0`;
             bird.y = canvas.height/2;
             bird.vy = -2;
             pipes = [];
             frame = 0;
+            stopMusic();
+            if (!isMuted && audioCtx) playHeroMusic(selectedHero);
         }
-        
-        // flap action: if game over, restart; else flap bird
+
         function flapAction(e) {
             if (e) {
                 if (e.type === 'keydown' && e.code !== 'Space') return;
@@ -360,13 +417,10 @@
                 restartGame();
                 return;
             }
-            if (gameRunning) {
-                bird.vy = JUMP_FORCE;
-                // optional tiny soundless feedback: visual pulse
-            }
+            if (gameRunning) bird.vy = JUMP_FORCE;
         }
-        
-        // UI: hero selection (changes theme + tattoo)
+
+        // hero selection + change theme & music
         function buildHeroSelector() {
             const container = document.getElementById('heroGrid');
             container.innerHTML = '';
@@ -379,41 +433,59 @@
                     selectedHero = hero;
                     document.querySelectorAll('.hero-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    // if game is not running, just refresh visual; if game over, reset theme but not restart
-                    if (!gameRunning && gameOverFlag) {
-                        // just redraw
-                    } else if (gameRunning) {
-                        // optionally do not interrupt game, but theme changes immediate
-                    }
+                    stopMusic();
+                    if (!isMuted && gameRunning && !gameOverFlag) playHeroMusic(selectedHero);
+                    // no game reset, just visual + music change
                 });
                 container.appendChild(btn);
             });
         }
-        
-        // animation loop
+
+        // mute/unmute
+        function setupMute() {
+            const muteBtn = document.getElementById('muteBtn');
+            muteBtn.addEventListener('click', () => {
+                isMuted = !isMuted;
+                muteBtn.innerText = isMuted ? "🔇 Unmute" : "🔊 Mute";
+                if (isMuted) {
+                    stopMusic();
+                } else {
+                    if (gameRunning && !gameOverFlag) playHeroMusic(selectedHero);
+                }
+            });
+        }
+
         function animate() {
             if (gameRunning) updateGame();
             drawScene();
             requestAnimationFrame(animate);
         }
-        
-        // event binding
+
+        function init() {
+            buildHeroSelector();
+            setupMute();
+            bindEvents();
+            restartGame(); // starts gameRunning true, music starts if not muted
+            animate();
+            // initial audio context must be started after user interaction on some browsers
+            canvas.addEventListener('click', () => {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        if (!isMuted && gameRunning && !gameOverFlag) playHeroMusic(selectedHero);
+                    });
+                }
+            }, { once: true });
+        }
+
         function bindEvents() {
             window.addEventListener('keydown', flapAction);
             canvas.addEventListener('click', flapAction);
             canvas.addEventListener('touchstart', flapAction, {passive: false});
         }
-        
-        // initial start
-        function init() {
-            buildHeroSelector();
-            bindEvents();
-            restartGame(); // start ready, gameRunning = true
-            animate();
-        }
-        
+
         init();
     })();
 </script>
 </body>
 </html>
+        
