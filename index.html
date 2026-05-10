@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Flappy Superheroes</title>
+    <title>Flappy Superheroes – Tattoo Eagle</title>
     <style>
         * {
             user-select: none;
@@ -12,371 +12,407 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: linear-gradient(145deg, #0b3b5f 0%, #1b4f72 100%);
+            background: #0a0f1e;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Segoe UI', 'Courier New', monospace;
         }
-        .game-container {
-            background: #000;
-            padding: 10px;
-            border-radius: 28px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+        .game-wrapper {
+            background: #000000aa;
+            border-radius: 2rem;
+            padding: 1rem;
+            backdrop-filter: blur(3px);
         }
         canvas {
             display: block;
             margin: 0 auto;
             border-radius: 20px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
             cursor: pointer;
         }
-        .hero-selector {
+        .hero-panel {
             text-align: center;
-            margin-top: 20px;
-            color: #ffdd77;
-            text-shadow: 3px 3px 0 #8b5a2b;
+            margin-bottom: 18px;
+            background: #1e2a36cc;
+            padding: 10px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            width: auto;
         }
         .hero-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 15px auto;
-            max-width: 800px;
+            gap: 12px;
+            margin-top: 6px;
         }
-        .hero-card {
-            background: #1f2a3a;
-            border-radius: 60px;
-            padding: 8px 18px;
-            font-size: 1.3rem;
+        .hero-btn {
+            background: #2c3e44;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 1.1rem;
             font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 0 #0f1219;
             color: white;
-            display: flex;
+            cursor: pointer;
+            transition: 0.1s linear;
+            font-family: monospace;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 2px 6px black;
         }
-        .hero-card.selected {
+        .hero-btn.active {
             background: #f5b042;
-            color: #1f2a3a;
-            box-shadow: 0 0 12px #ffdd99;
+            color: #1f2a2f;
+            box-shadow: 0 0 12px #ffcc77;
             transform: scale(1.02);
         }
-        button {
-            background: #2ecc71;
-            border: none;
-            font-size: 1.4rem;
-            font-weight: bold;
-            padding: 8px 28px;
-            border-radius: 40px;
-            margin-top: 10px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #1f8b4c;
-            transition: 0.05s linear;
-            font-family: inherit;
-        }
-        button:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #1f8b4c;
-        }
         .score-board {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            background: #000000aa;
+            background: #00000099;
             display: inline-block;
-            padding: 5px 20px;
-            border-radius: 60px;
-            margin-bottom: 12px;
-            backdrop-filter: blur(4px);
+            padding: 4px 20px;
+            border-radius: 40px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .info {
+            text-align: center;
+            color: #cdddee;
+            margin-top: 12px;
+            font-size: 0.85rem;
         }
         footer {
             text-align: center;
-            color: #bbc;
-            margin-top: 18px;
-            font-size: 0.8rem;
+            color: #99aacc;
+            margin-top: 15px;
+            font-size: 0.7rem;
         }
-        @media (max-width: 600px) {
-            .hero-card { font-size: 0.9rem; padding: 4px 12px; }
-            .score-board { font-size: 1.4rem; }
+        @media (max-width: 560px) {
+            .hero-btn { font-size: 0.8rem; padding: 4px 12px; }
         }
     </style>
 </head>
 <body>
-<div>
-    <div class="hero-selector">
-        <div class="score-board" id="scoreDisplay">⭐ 0</div>
-        <div style="font-size: 1.55rem; margin-bottom: 6px;">✧ CHOOSE YOUR HERO ✧</div>
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <div class="hero-panel">
+        <div class="score-board" id="scoreDisplay">🦅 0</div>
+        <div style="font-weight: bold; margin: 5px;">⚡ SUPERHERO TATTOO EAGLE ⚡</div>
         <div class="hero-grid" id="heroGrid"></div>
-        <button id="startBtn">🚀 START FLAPPY MODE 🚀</button>
     </div>
-    <div class="game-container">
+    <div class="game-wrapper">
         <canvas id="gameCanvas" width="500" height="600" style="width:100%; height:auto; max-width:500px; aspect-ratio:500/600;"></canvas>
     </div>
-    <footer>␣ SPACE / CLICK → FLAP   |   avoid pipes & ground</footer>
+    <div class="info">▼ CLICK / SPACEBAR = FLAP ▲  |  crash → instantly restart</div>
+    <footer>🦅 eagle tattoo changes with hero | dynamic superhero themes</footer>
 </div>
 
 <script>
     (function(){
-        // ---------- SUPERHERO SKINS ----------
+        // ----- SUPERHERO ROSTER with theme colors & tattoo symbol -----
         const heroes = [
-            { name: "Spiderman", emoji: "🕷️", color: "#E23636" },
-            { name: "Batman", emoji: "🦇", color: "#2C2F33" },
-            { name: "Superman", emoji: "🦸", color: "#F5D742" },
-            { name: "Green Lantern", emoji: "💚", color: "#2FCC71" },
-            { name: "Wonder Woman", emoji: "👸", color: "#F1C40F" },
-            { name: "Scarlet Witch", emoji: "🔮", color: "#C0392B" },
-            { name: "Captain Marvel", emoji: "✨", color: "#F39C12" },
-            { name: "Catwoman", emoji: "🐱", color: "#5D6D7E" }
+            { name: "Spiderman",   emoji: "🕷️",  tattoo: "🕸️", themeColor: "#E23636", bgTop: "#8B0000", bgBottom: "#4A0000", pipeColor: "#2F2F8F" },
+            { name: "Batman",      emoji: "🦇",  tattoo: "🦇", themeColor: "#2C2F33", bgTop: "#1E1A2F", bgBottom: "#0B0B1A", pipeColor: "#3A3A5A" },
+            { name: "Superman",    emoji: "🦸",  tattoo: "⚡", themeColor: "#F5D742", bgTop: "#1E4F8A", bgBottom: "#092C44", pipeColor: "#E5B13B" },
+            { name: "Green Lantern",emoji: "💚",  tattoo: "🔰", themeColor: "#2FCC71", bgTop: "#165B33", bgBottom: "#0A2E1A", pipeColor: "#6FCF97" },
+            { name: "Wonder Woman",emoji: "👸",  tattoo: "⭐", themeColor: "#F1C40F", bgTop: "#B86F2C", bgBottom: "#522E0E", pipeColor: "#F5B041" },
+            { name: "Scarlet Witch",emoji:"🔮",  tattoo: "🌀", themeColor: "#C0392B", bgTop: "#6A1E3A", bgBottom: "#2E0B18", pipeColor: "#C44536" },
+            { name: "Captain Marvel",emoji:"✨",  tattoo: "💫", themeColor: "#F39C12", bgTop: "#1B5A7A", bgBottom: "#0A2E42", pipeColor: "#F7DC6F" },
+            { name: "Catwoman",    emoji: "🐱",  tattoo: "🐾", themeColor: "#5D6D7E", bgTop: "#2C2E3A", bgBottom: "#11121C", pipeColor: "#AF7AC5" }
         ];
+
         let selectedHero = heroes[0];
-        
-        // canvas elements
+        let gameRunning = true;     // game starts immediately after select? Actually we start in idle but first flap starts.
+        let gameOverFlag = false;
+        let score = 0;
+        let frameCounter = 0;
+        let animationId = null;
+
+        // canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // game state
-        let gameRunning = false;
-        let frame = 0;
-        let score = 0;
-        let bird = { x: 100, y: 250, vy: 0, radius: 16 };
+        const scoreSpan = document.getElementById('scoreDisplay');
+
+        // bird (eagle) physics
+        let bird = {
+            x: 100,
+            y: canvas.height/2,
+            vy: 0,
+            radius: 20    // eagle hitbox slightly bigger
+        };
         let pipes = [];
-        const GRAVITY = 0.3;
-        const JUMP = -5.8;
-        const PIPE_WIDTH = 65;
-        const PIPE_GAP = 135;
+        
+        // constants
+        const GRAVITY = 0.28;
+        const JUMP_FORCE = -5.6;
+        const PIPE_W = 60;
+        const PIPE_GAP = 140;
         const PIPE_SPACING = 210;
+        let frame = 0;
         
-        // UI elements
-        const startBtn = document.getElementById('startBtn');
-        const heroGrid = document.getElementById('heroGrid');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        
-        // build hero selector
-        function buildHeroSelector() {
-            heroGrid.innerHTML = '';
-            heroes.forEach(hero => {
-                const card = document.createElement('div');
-                card.className = 'hero-card';
-                if (selectedHero.name === hero.name) card.classList.add('selected');
-                card.innerHTML = `${hero.emoji} ${hero.name}`;
-                card.addEventListener('click', () => {
-                    selectedHero = hero;
-                    document.querySelectorAll('.hero-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    drawIdleScreen(); // preview bird
-                });
-                heroGrid.appendChild(card);
-            });
-        }
-        
-        // draw bird with current skin (emoji)
-        function drawBird(x, y, radius) {
-            // draw circle background with hero color
+        // helper: draw eagle with tattoo (superhero symbol)
+        function drawEagle(x, y, radius) {
+            // body base (brown/golden eagle)
             ctx.save();
             ctx.shadowBlur = 0;
+            // main body
             ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI*2);
-            ctx.fillStyle = selectedHero.color;
+            ctx.ellipse(x, y, radius*0.9, radius*1.1, 0, 0, Math.PI*2);
+            ctx.fillStyle = "#B87C4F";
             ctx.fill();
-            ctx.strokeStyle = '#111';
-            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "#5D3A1A";
+            ctx.lineWidth = 1.8;
             ctx.stroke();
-            // draw emoji
-            ctx.font = `${radius*1.6}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui, sans-serif`;
+            // wings
+            ctx.beginPath();
+            ctx.moveTo(x - radius*0.8, y - radius*0.3);
+            ctx.quadraticCurveTo(x - radius*1.3, y - radius*0.8, x - radius*1.1, y);
+            ctx.quadraticCurveTo(x - radius*0.9, y + radius*0.2, x - radius*0.5, y);
+            ctx.fillStyle = "#AB6F3F";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + radius*0.8, y - radius*0.3);
+            ctx.quadraticCurveTo(x + radius*1.3, y - radius*0.8, x + radius*1.1, y);
+            ctx.quadraticCurveTo(x + radius*0.9, y + radius*0.2, x + radius*0.5, y);
+            ctx.fill();
+            // head
+            ctx.beginPath();
+            ctx.arc(x, y - radius*0.3, radius*0.65, 0, Math.PI*2);
+            ctx.fillStyle = "#C88A54";
+            ctx.fill();
+            ctx.fillStyle = "#FFE0A3";
+            ctx.beginPath();
+            ctx.ellipse(x-5, y-radius*0.45, 4, 6, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x+5, y-radius*0.45, 4, 6, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#000";
+            ctx.beginPath();
+            ctx.arc(x-5, y-radius*0.48, 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x+5, y-radius*0.48, 2, 0, Math.PI*2);
+            ctx.fill();
+            // beak
+            ctx.beginPath();
+            ctx.moveTo(x, y-radius*0.25);
+            ctx.lineTo(x+6, y-radius*0.15);
+            ctx.lineTo(x, y-radius*0.08);
+            ctx.fillStyle = "#E69500";
+            ctx.fill();
+            
+            // ----- TATTOO (superhero symbol) on eagle's chest -----
+            ctx.font = `${Math.floor(radius*1.2)}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = "#111";
-            ctx.fillText(selectedHero.emoji, x, y);
+            ctx.fillStyle = "#FFD966";
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = "black";
+            ctx.fillText(selectedHero.tattoo, x, y + radius*0.2);
+            ctx.shadowBlur = 0;
             ctx.restore();
         }
         
-        // draw pipes, ground, background
-        function drawBackground() {
-            // sky gradient
+        // background with hero theme
+        function drawThemeBackground() {
             const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            grad.addColorStop(0, '#55aaff');
-            grad.addColorStop(0.7, '#2299dd');
+            grad.addColorStop(0, selectedHero.bgTop);
+            grad.addColorStop(1, selectedHero.bgBottom);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // clouds
-            ctx.fillStyle = '#ffffffcc';
-            ctx.beginPath();
-            ctx.ellipse(70 + frame*0.2 % 300, 60, 35, 28, 0, 0, Math.PI*2);
-            ctx.ellipse(400 - frame*0.1 % 400, 120, 45, 32, 0, 0, Math.PI*2);
-            ctx.fill();
-            // ground
-            ctx.fillStyle = '#6b4c3b';
+            // add hero emblem floating
+            ctx.font = `34px "Segoe UI Emoji"`;
+            ctx.fillStyle = "#ffffff30";
+            ctx.fillText(selectedHero.emoji, canvas.width-50, 60);
+            ctx.fillText(selectedHero.emoji, 20, canvas.height-40);
+        }
+        
+        function drawGround() {
+            ctx.fillStyle = "#5C3E1F";
             ctx.fillRect(0, canvas.height-70, canvas.width, 70);
-            ctx.fillStyle = '#ac8e68';
-            ctx.fillRect(0, canvas.height-75, canvas.width, 8);
-            // ground shadow
-            ctx.fillStyle = '#2c1e12';
-            for(let i=0;i<12;i++) {
-                ctx.fillRect(i*45 + (frame%45), canvas.height-70, 20, 8);
+            ctx.fillStyle = "#3C2A12";
+            for(let i=0; i<12; i++) {
+                ctx.fillRect(i*48 + (frame%48), canvas.height-70, 28, 10);
             }
+            ctx.fillStyle = "#95754A";
+            ctx.fillRect(0, canvas.height-75, canvas.width, 8);
         }
         
         function drawPipes() {
             for(let p of pipes) {
-                ctx.fillStyle = '#3b9e3b';
-                ctx.fillRect(p.x, 0, PIPE_WIDTH, p.topHeight);
-                ctx.fillStyle = '#2d7a2d';
-                ctx.fillRect(p.x, p.topHeight-30, PIPE_WIDTH, 30);
-                ctx.fillStyle = '#3b9e3b';
-                ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, canvas.height - p.topHeight - PIPE_GAP - 70);
-                ctx.fillStyle = '#2d7a2d';
-                ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, 35);
-                // pipe brim
-                ctx.fillStyle = '#5fad4b';
-                ctx.fillRect(p.x-8, p.topHeight-15, PIPE_WIDTH+16, 20);
-                ctx.fillRect(p.x-8, p.topHeight + PIPE_GAP - 8, PIPE_WIDTH+16, 20);
+                // main pipe body
+                ctx.fillStyle = selectedHero.pipeColor;
+                ctx.fillRect(p.x, 0, PIPE_W, p.topHeight);
+                ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_W, canvas.height - p.topHeight - PIPE_GAP - 70);
+                // pipe rims
+                ctx.fillStyle = "#4F9A4F";
+                ctx.fillRect(p.x-8, p.topHeight-18, PIPE_W+16, 22);
+                ctx.fillRect(p.x-8, p.topHeight + PIPE_GAP - 8, PIPE_W+16, 22);
+                // edge glow
+                ctx.strokeStyle = "#D4AF37";
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(p.x-6, p.topHeight-15, PIPE_W+12, 16);
+                ctx.strokeRect(p.x-6, p.topHeight + PIPE_GAP -6, PIPE_W+12, 16);
             }
         }
         
         function updateGame() {
             if (!gameRunning) return;
-            // bird physics
+            
+            // eagle physics
             bird.vy += GRAVITY;
             bird.y += bird.vy;
-            // ground & ceiling collision
-            if (bird.y + bird.radius >= canvas.height - 70 || bird.y - bird.radius <= 0) {
-                gameOver();
+            
+            // collision with ground or ceiling
+            if (bird.y + bird.radius >= canvas.height - 70 || bird.y - bird.radius <= 5) {
+                gameRunning = false;
+                gameOverFlag = true;
                 return;
             }
-            // pipe movement & collision
-            for (let i=0; i<pipes.length; i++) {
-                pipes[i].x -= 2.8;
-                // collision detection (hitbox)
-                if (bird.x + bird.radius > pipes[i].x && bird.x - bird.radius < pipes[i].x + PIPE_WIDTH) {
-                    if (bird.y - bird.radius < pipes[i].topHeight || bird.y + bird.radius > pipes[i].topHeight + PIPE_GAP) {
-                        gameOver();
+            
+            // pipe collision & scoring
+            for(let i=0; i<pipes.length; i++) {
+                let p = pipes[i];
+                if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + PIPE_W) {
+                    if (bird.y - bird.radius < p.topHeight || bird.y + bird.radius > p.topHeight + PIPE_GAP) {
+                        gameRunning = false;
+                        gameOverFlag = true;
                         return;
                     }
                 }
-                // scoring
-                if (!pipes[i].counted && pipes[i].x + PIPE_WIDTH < bird.x - bird.radius) {
-                    pipes[i].counted = true;
+                if (!p.counted && p.x + PIPE_W < bird.x - bird.radius) {
+                    p.counted = true;
                     score++;
-                    scoreDisplay.innerText = `⭐ ${score}`;
+                    scoreSpan.innerText = `🦅 ${score}`;
                 }
             }
             // remove offscreen pipes
-            pipes = pipes.filter(p => p.x + PIPE_WIDTH > 0);
+            pipes = pipes.filter(p => p.x + PIPE_W > 0);
+            
             // spawn new pipes
             if (frame % 110 === 0 && gameRunning) {
-                let topHeight = Math.random() * (canvas.height - PIPE_GAP - 140) + 60;
+                let minTop = 60;
+                let maxTop = canvas.height - PIPE_GAP - 110;
+                let topHeight = Math.floor(Math.random() * (maxTop - minTop + 1) + minTop);
                 pipes.push({
                     x: canvas.width,
                     topHeight: topHeight,
                     counted: false
                 });
             }
+            // move pipes
+            for(let p of pipes) {
+                p.x -= 3.0;
+            }
             frame++;
         }
         
-        function drawGame() {
-            drawBackground();
+        function drawScene() {
+            drawThemeBackground();
             drawPipes();
-            drawBird(bird.x, bird.y, bird.radius);
-            // score on canvas
-            ctx.font = 'bold 28monospace';
-            ctx.fillStyle = '#fff6d0';
-            ctx.shadowBlur = 0;
-            ctx.fillText(`✧ ${score}`, 20, 55);
-            if (!gameRunning && !window.gameOverFlag) {
-                ctx.font = 'bold 26px "Courier New"';
-                ctx.fillStyle = '#fee3b8';
-                ctx.shadowBlur = 0;
-                ctx.fillText("CLICK / SPACE", canvas.width/2-105, canvas.height/2-40);
+            drawGround();
+            drawEagle(bird.x, bird.y, bird.radius);
+            // score display on canvas
+            ctx.font = 'bold 26px "Courier New"';
+            ctx.fillStyle = "#F9E79F";
+            ctx.shadowBlur = 2;
+            ctx.fillText(`⚡ ${score}`, 20, 55);
+            if (!gameRunning && gameOverFlag) {
+                ctx.font = 'bold 24px monospace';
+                ctx.fillStyle = "#FFD966";
+                ctx.fillText("💥 GAME OVER 💥", canvas.width/2-110, canvas.height/2-50);
+                ctx.font = '16px monospace';
+                ctx.fillStyle = "#CCBB88";
+                ctx.fillText("tap / space to restart", canvas.width/2-95, canvas.height/2+20);
+            } else if (!gameRunning && !gameOverFlag) {
+                // initial waiting state (should not happen but safe)
                 ctx.font = '18px monospace';
-                ctx.fillStyle = '#fbd26a';
-                ctx.fillText("press START", canvas.width/2-48, canvas.height/2+30);
-            } else if (window.gameOverFlag) {
-                ctx.font = 'bold 28px monospace';
-                ctx.fillStyle = '#ffbb88';
-                ctx.fillText("💀 GAME OVER 💀", canvas.width/2-100, canvas.height/2-30);
-                ctx.font = '18px monospace';
-                ctx.fillStyle = '#ddd';
-                ctx.fillText("press RESTART", canvas.width/2-55, canvas.height/2+30);
+                ctx.fillStyle = "#FFEEAA";
+                ctx.fillText("tap to fly", canvas.width/2-45, canvas.height/2);
             }
+            ctx.shadowBlur = 0;
         }
         
-        function gameLoop() {
-            if (gameRunning) updateGame();
-            drawGame();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        function startGame() {
+        // restart function (reset everything)
+        function restartGame() {
             gameRunning = true;
-            window.gameOverFlag = false;
+            gameOverFlag = false;
             score = 0;
-            scoreDisplay.innerText = `⭐ 0`;
+            scoreSpan.innerText = `🦅 0`;
             bird.y = canvas.height/2;
             bird.vy = -2;
             pipes = [];
             frame = 0;
         }
         
-        function gameOver() {
-            gameRunning = false;
-            window.gameOverFlag = true;
-        }
-        
-        function flap() {
-            if (!gameRunning) {
-                if (window.gameOverFlag === true) startGame();
+        // flap action: if game over, restart; else flap bird
+        function flapAction(e) {
+            if (e) {
+                if (e.type === 'keydown' && e.code !== 'Space') return;
+                e.preventDefault();
+            }
+            if (!gameRunning && gameOverFlag) {
+                restartGame();
                 return;
             }
-            bird.vy = JUMP;
-        }
-        
-        // idle screen draw
-        function drawIdleScreen() {
-            if (gameRunning) return;
-            drawBackground();
-            drawBird(canvas.width/2, canvas.height/2-30, bird.radius);
-            ctx.font = 'bold 26px monospace';
-            ctx.fillStyle = '#fff3b0';
-            ctx.fillText("⚡ FLAPPY SUPERHEROES ⚡", canvas.width/2-165, 70);
-            ctx.font = '16px monospace';
-            ctx.fillStyle = '#eedd99';
-            ctx.fillText(`selected: ${selectedHero.emoji} ${selectedHero.name}`, canvas.width/2-110, canvas.height-40);
-            // small demo pipes
-            ctx.fillStyle = '#559955';
-            ctx.fillRect(canvas.width-70, 120, 45, 80);
-            ctx.fillRect(canvas.width-70, 120+150, 45, 150);
-        }
-        
-        // events
-        function handleKey(e) {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                flap();
+            if (gameRunning) {
+                bird.vy = JUMP_FORCE;
+                // optional tiny soundless feedback: visual pulse
             }
         }
         
-        function handleCanvasClick(e) {
-            e.preventDefault();
-            flap();
+        // UI: hero selection (changes theme + tattoo)
+        function buildHeroSelector() {
+            const container = document.getElementById('heroGrid');
+            container.innerHTML = '';
+            heroes.forEach(hero => {
+                const btn = document.createElement('button');
+                btn.className = 'hero-btn';
+                if (selectedHero.name === hero.name) btn.classList.add('active');
+                btn.innerHTML = `${hero.emoji} ${hero.name}`;
+                btn.addEventListener('click', () => {
+                    selectedHero = hero;
+                    document.querySelectorAll('.hero-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    // if game is not running, just refresh visual; if game over, reset theme but not restart
+                    if (!gameRunning && gameOverFlag) {
+                        // just redraw
+                    } else if (gameRunning) {
+                        // optionally do not interrupt game, but theme changes immediate
+                    }
+                });
+                container.appendChild(btn);
+            });
         }
         
-        // init
-        buildHeroSelector();
-        drawIdleScreen();
-        startBtn.addEventListener('click', () => {
-            startGame();
-        });
-        window.addEventListener('keydown', handleKey);
-        canvas.addEventListener('click', handleCanvasClick);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); flap(); });
-        gameLoop();
-        // redraw idle when hero changes while game not running
-        setInterval(() => {
-            if (!gameRunning) drawIdleScreen();
-        }, 80);
+        // animation loop
+        function animate() {
+            if (gameRunning) updateGame();
+            drawScene();
+            requestAnimationFrame(animate);
+        }
+        
+        // event binding
+        function bindEvents() {
+            window.addEventListener('keydown', flapAction);
+            canvas.addEventListener('click', flapAction);
+            canvas.addEventListener('touchstart', flapAction, {passive: false});
+        }
+        
+        // initial start
+        function init() {
+            buildHeroSelector();
+            bindEvents();
+            restartGame(); // start ready, gameRunning = true
+            animate();
+        }
+        
+        init();
     })();
 </script>
 </body>
